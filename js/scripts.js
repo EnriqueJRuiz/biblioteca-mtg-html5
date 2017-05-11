@@ -39,4 +39,18 @@ jQuery(document).ready(function ($) {
             $("#listadoAmpliaciones").text("No se han encontrado alumnos")
         }
     }
+
+    $('.borrarAmpliacion').click(function(event) {
+        var id_ampliacion = this.id;
+
+        const url="http://localhost:8080/bibliotecamtg/api/ampliacipones/";
+        $.ajax({
+            url : url,
+            dataType : "json",
+            success : function(parsed_json) {
+                        }
+        }).done(function() {
+            location.reload();
+        });
+    });
 });

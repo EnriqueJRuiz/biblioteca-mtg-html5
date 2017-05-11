@@ -1,12 +1,27 @@
-/**
- * Created by Curso on 10/05/2017.
- */
-var alumnos=[1,2,3,4,5,6,7,8,9,10,11,12,13,14];
+var alumnos = [
+    {"codigo":1,"nombre":"sergio","apellidos":"aparicio vegas","dni":"44974398z","email":"xxxxx@xxx.xx","telefono":"+3494"},
+    {"codigo":2,"nombre":"maite","apellidos":"monasterio herrero","dni":"16071559x","email":"xxxxx@xxx.xx","telefono":"+3494"},
+    {"codigo":3,"nombre":"jorge","apellidos":"manso rodriguez","dni":"16412750e","email":"xxxxx@xxx.xx","telefono":"+3494"}
+];
 $.noConflict();
 jQuery(document).ready(function ($) {
 
 
     $("#contactForm").on("submit",validarFormularioContacto);
+    $("#listadoAlumnos div a:last-child").click(borrarVarios);
+    $("#tablaAlumnos tbody").on("click", "td:last-child button:last-child",function() {
+        var codigo = $(this).parents("tr").find("input[type=checkbox]").val();
+        alert("has pulsado el boton de borrar del codigo "+ codigo);
+        $(this).parents("tr").remove();
+
+    });
+    $("#tablaAlumnos tbody").on("click", "td:last-child button:first-child",function() {
+        var codigo = $(this).parents("tr").find("input[type=checkbox]").val();
+        var nombre = $(this).parents("tr").find("td:nth-child(2)").text();
+        var apellidos = $(this).parents("tr").find("td:nth-child(3)").text();;
+        var telefono = $(this).parents("tr").find("td:nth-child(4)").text();;
+        alert("has pulsado el boton de editar del codigo "+ codigo+" "+ nombre+" "+apellidos +" "+telefono );
+    });
     $("#borrartodos").click(function (event) {
         //attr ---> cambios de atributos
         // prop --> propiedades
@@ -21,6 +36,17 @@ jQuery(document).ready(function ($) {
             $("tbody input[type=checkbox]").prop("checked",false);
         }
     });
+
+    function borrarVarios() {
+        $("#tablaAlumnos tbody input:checked").each(function () {
+            var codigo = $(this).val();
+            $(this).parents("tr").remove();
+        });
+
+        var total = $("tbody tr").length;
+        $("#tablaAlumnos tfoot td").html("<span class='text-error'>Total alumnos:"+total,10+"</span>");
+
+    }
 
     function validarFormularioContacto() {
         var pdni = $("#dni").val();
@@ -60,21 +86,28 @@ jQuery(document).ready(function ($) {
         }
         return false;
     }
-    cargarArrayAmpliaciones();
-    function cargarArrayAmpliaciones() {
+    cargarArrayAlumnos();
+    function cargarArrayAlumnos() {
         //recorrer el array
         if (alumnos.length > 0) {
-            for (var a in alumnos) {
-                console.log(a);
-                var texto = "<tr><td><input type='checkbox' value='" + a + "'></td><td>" + a + "</td><td></td><td></td><td></td><td></td></tr>";
+            for(var i = 0; i < alumnos.length; i++) {
+                console.log(alumnos[i]);
+                var codigo = alumnos[i].codigo;
+                var nombre = alumnos[i].nombre;
+                var apellidos = alumnos[i].apellidos;
+                var email = alumnos[i].email;
+                var dni = alumnos[i].dni;
+                var htmlEdit = "<button>Editar</button>";
+                var htmlDelete = "<button>Borrar</button>";
+                var texto = "<tr><td><input type='checkbox' value='" + codigo + "'></td><td>" + nombre + "</td><td>" + apellidos + "</td><td>" + dni + "</td><td>" + email + "</td><td>" + htmlEdit + htmlDelete + "</td></tr>";
                 //añadir el html correspondiente a la página
                 $("#tablaAlumnos tbody").append(texto);
                 //-->
             }
-            $("#tablaAmpliaciones tfoot td").html("<span class='text-error'>Total alumnos:"+alumnos.length,10+"</span>");
+            $("#tablaAlumnos tfoot td").html("<span class='text-error'>Total alumnos:"+alumnos.length,10+"</span>");
         }else{
-            $("#tablaAmpliaciones").remove();
-            $("#listadoAmpliaciones").text("No se han encontrado alumnos")
+            $("#tablaAlumnos").remove();
+            $("#listadoAlumnos").text("No se han encontrado alumnos")
         }
     }
 });
@@ -95,4 +128,23 @@ function validarTelefono(telefono){
     }
     return valido ;
 }
+function validarDni(dni) {
+    var valido = false;
 
+    var numero
+    var letr
+    var letra
+    const pattern = new RegExp(/\d{8}[A-Za-z]{1}/);
+
+    if(pattern.test(dni)){
+        numero = dni.substr(0,dni.length-1);
+        letr = dni.substr(dni.length-1,1);
+        numero = numero % 23;
+        letra='TRWAGMYFPDXBNJZSQVHLCKET';
+        letra=letra.substring(numero,numero+1);
+        if (letra==letr.toUpperCase()) {
+            valido = true;
+        }
+    }
+    return valido;
+}
