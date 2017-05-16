@@ -8,7 +8,7 @@ jQuery(document).ready(function ($) {
             $("tbody input[type=checkbox]").prop("checked",false);
         }
     });
-    cargarArrayAmpliaciones();
+   /* cargarArrayAmpliaciones();
     function cargarArrayAmpliaciones() {
 
         if (ampliaciones.length > 0) {
@@ -38,19 +38,44 @@ jQuery(document).ready(function ($) {
             $("#tablaAmpliaciones").remove();
             $("#listadoAmpliaciones").text("No se han encontrado alumnos")
         }
-    }
-
-    $('.borrarAmpliacion').click(function(event) {
-        var id_ampliacion = this.id;
-
-        const url="http://localhost:8080/bibliotecamtg/api/ampliacipones/";
-        $.ajax({
-            url : url,
-            dataType : "json",
-            success : function(parsed_json) {
+    }*/
+    prueba();
+    function prueba() {
+        const url="http://localhost:8080/bibliotecamtg/api/ampliacipones";
+        $.ajax({"url": url,"method":"get"})
+            .then(function(data){
+                console.log(data);
+                if (data.length > 0) {
+                    for(var i = 0; i < data.length; i++){
+                       var ampliacion=data[i];
+                        var titulo = ampliacion.nombre
+                        if (ampliacion.imagen != null && ampliacion.imagen != "" ) {
+                            titulo =  "<img src='"+ampliacion.imagen+"'>"
                         }
-        }).done(function() {
-            location.reload();
-        });
-    });
+                        var texto = "<tr>" +
+                            "<td>" +
+                            "<input type='checkbox'  value='" + ampliacion.codigo + "'>" +
+                            "</td>" +
+                            "<td class=''>"+
+                                titulo+
+                            "</td>" +
+                            "<td>" +
+                                ampliacion.siglas+
+                            "</td>" +
+                            "<td>" +
+                                ampliacion.principal.nombre+
+                            "</td>" +
+                            "<td>" +
+
+                            "</td>" +
+                            "</tr>";
+                        $("#tablaAmpliaciones tbody").append(texto);
+                    }
+                    $("#tablaAmpliaciones tfoot td").html("<span class='text-error'>Total expansiones:"+data.length,10+"</span>");
+                }else{
+                    $("#tablaAmpliaciones").remove();
+                    $("#listadoAmpliaciones").text("No se han encontrado alumnos")
+                }
+            });
+    }
 });
