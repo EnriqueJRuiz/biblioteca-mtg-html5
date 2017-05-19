@@ -26,6 +26,7 @@ export  function rederizarFormulario(codigo = -1){
             as.getById(codigo)
                 .then(function(ampli){
                     txt = parseForm(JSON.parse(ampli));
+                    
                     resolve(txt);
                 })
                 .catch(function () {
