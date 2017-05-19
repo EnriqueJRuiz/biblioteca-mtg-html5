@@ -3,31 +3,50 @@ window.jQuery = window.$ = $;
 import * as ampliacion from "./ampliaciones.js";
 import * as color from "./colores.js";
 import * as carta from "./cartas.js";
+import * as libreria from "./libreria";
+
 require("bootstrap");
 //$.noConflict();
 
 
+var $pagebody =$("#page-body");
+var $formAmpliaciones =$("#formAmpliaciones");
 var $listadoAmpliaciones =$("#listadoAmpliaciones");
-if($listadoAmpliaciones.length) {
-    var as = new ampliacion.AmpliacionService();
-    as.getAll().then(function(data) {
-         console.log(data);
-        cargarArrayAmpliaciones(JSON.parse(data));
-    }, function(error) {//error
-        console.log(error);
-    })
-}
 var $ListadoColores = $("#listadoColores");
+var $ListadoCartas = $("#listadoCartas");
+
+if($listadoAmpliaciones.length) {
+    let p1 =ampliacion.renderizar();
+    p1.then(function (txt) {
+        $listadoAmpliaciones.find("div.flexcontainer:last-child").append(txt);
+    }).catch(function (txt) {
+
+    });
+}
+
+if($formAmpliaciones.length) {
+    let codigo = libreria.getURLParameter('codigo');
+    // console.log(codigo);
+    let p2 =alumno.rederizarFormulario(codigo);
+
+    p2.then(function (html) {
+        console.log("html"+html);
+        $alumno.find("div.flexcontainer:last-child").append(html);
+    }).catch(function (txt) {
+        console.log("html"+txt);
+    });
+}    
+
 if($ListadoColores.length) {
     var cos = new color.ColorService();
     cos.getAll().then(function(data) {
-        console.log(data);
+ //       console.log(data);
         cargarArrayColores(JSON.parse(data));
     }, function(error) {//error
-        console.log(error);
+     //   console.log(error);
     })
 }
-var $ListadoCartas = $("#listadoCartas");
+
 if($ListadoCartas.length) {
     var cas = new carta.CartaService();
     cas.getAll().then(function(data) {
@@ -39,74 +58,39 @@ if($ListadoCartas.length) {
 }
 
 //$("#contactForm").on("submit",validarFormularioContacto);
-$("#listadoAmpliacion div a:last-child").click(borrarVariosAmpliacion);
-$("#listadoColor div a:last-child").click(borrarVariosColor);
-$("#listadoColor div a:last-child").click(borrarVariosCarta);
+$listadoAmpliaciones.find("div a:last-child").click(borrarVarios);
+$ListadoColores.find("div a:last-child").click(borrarVarios);
+$ListadoCartas.find("div a:last-child").click(borrarVarios);
 
-$("#tablaAmpliaciones tbody").on("click","td:last-child button:last-child",function(){
-    //alert("has pulsado el boton de borrado");
-    var codigo = $(this).parents("tr").find("input[type=checkbox]").val();
-    //Llamar al REST para Borrar
-    //
-    // alert(codigo);
-    //borra la tupla del boton que se ha seleccionado
-    $(this).parents("tr").remove();
-});
-$("#tablaColor tbody").on("click","td:last-child button:last-child",function(){
-    //alert("has pulsado el boton de borrado");
-    var codigo = $(this).parents("tr").find("input[type=checkbox]").val();
-    //Llamar al REST para Borrar
-    //
-    // alert(codigo);
-    //borra la tupla del boton que se ha seleccionado
-    $(this).parents("tr").remove();
-});
-$("#tablaCarta tbody").on("click","td:last-child button:last-child",function(){
-    //alert("has pulsado el boton de borrado");
-    var codigo = $(this).parents("tr").find("input[type=checkbox]").val();
-    //Llamar al REST para Borrar
-    //
-    // alert(codigo);
-    //borra la tupla del boton que se ha seleccionado
-    $(this).parents("tr").remove();
-});
+$pagebody.on("click","tbody td:last-child button:first-child",function(){//editar
 
-
-function cargarArrayAmpliaciones(ampliaciones){
-    if (ampliaciones.length > 0) {
-        var htmlEdit ="<button>Editar</button>";
-        var htmlDelete ="<button>Borrar</button>";
-        for (var i = 0; i < ampliaciones.length; i++) {
-            var ampliacion = ampliaciones[i];
-            var titulo = ampliacion.nombre
-            if (ampliacion.imagen != null && ampliacion.imagen != "") {
-                titulo = "<img src='" + ampliacion.imagen + "'>"
-            }
-            var texto = "<tr>" +
-                "<td>" +
-                "<input type='checkbox'  value='" + ampliacion.codigo + "'>" +
-                "</td>" +
-                "<td class=''>" +
-                titulo +
-                "</td>" +
-                "<td>" +
-                ampliacion.siglas +
-                "</td>" +
-                "<td>" +
-                ampliacion.principal.nombre +
-                "</td>" +
-                "<td>" +
-                    htmlEdit+
-                    htmlDelete+
-                "</td>" +
-                "</tr>";
-            $("#tablaAmpliaciones tbody").append(texto);
-        }
-        $("#tablaAmpliaciones tfoot td").html("<span class='text-error'>Total expansiones:" + ampliaciones.length, 10 + "</span>");
-    } else {
-        $("#tablaAmpliaciones").remove();
-        $("#listadoAmpliaciones").text("No se han encontrado ampliaciones")
+    var codigo = $(this).parents("tr").find("input[type=checkbox]").val();
+    let nTable = $("table").attr("data-table");
+    //              http:----------------//--- localhost:63342
+    let txt= window.location.protocol + '//' + window.location.host+"/biblioteca-mtg/";
+    switch (nTable){
+        case 'ampliaciones':
+            txt += "ampliaciones/ampliacion.html?codigo="+codigo;
+            break;
     }
+    window.location = txt;
+});
+
+$("#page-body").on ('click',"#borrartodos",function (event) {
+    if($(this).is(":checked")){
+        $("tbody input[type=checkbox]").prop("checked",true);
+    }else{
+        $("tbody input[type=checkbox]").prop("checked",false);
+    }
+});
+function borrarVarios() {
+    //recoger los checksboxes marcados
+    $("table tbody input:checked").each(function () {
+        var codigo = $(this).val();
+        //Llamar al REST
+        $(this).parents("tr").remove();
+    });
+    $("tbody tr").length;
 }
 
 function cargarArrayColores(colores){
@@ -138,7 +122,7 @@ function cargarArrayColores(colores){
         $("#listadoColores").text("No se han encontrado colores")
     }
 }
-function cargarArrayCartas(colores){
+function cargarArrayCartas(cartas){
     if (cartas.length > 0) {
         var htmlEdit ="<button>Editar</button>";
         var htmlDelete ="<button>Borrar</button>";
@@ -164,50 +148,11 @@ function cargarArrayCartas(colores){
         $("#tablaCartas tfoot td").html("<span class='text-error'>Total Cartas:" + cartas.length, 10 + "</span>");
     } else {
         $("#tablaCartas").remove();
-        $("#listadoCartas").text("No se han encontrado colores")
+        $("#listadoCartas").text("No se han encontrado cartas")
     }
 }
 
-$("#borrartodos").click(function (event) {
-    if($(this).is(":checked")){
-        $("tbody input[type=checkbox]").prop("checked",true);
-    }else{
-        $("tbody input[type=checkbox]").prop("checked",false);
-    }
-});
-function borrarVariosAmpliacion() {
-    //recoger los checksboxes marcados
-    $("#tablaAmpliaciones tbody input:checked").each(function () {
-        var codigo = $(this).val();
-        //Llamar al REST
-        $(this).parents("tr").remove();
 
-
-    });
-    $("tbody tr").length;
-}
-function borrarVariosColor() {
-    //recoger los checksboxes marcados
-    $("#tablaColores tbody input:checked").each(function () {
-        var codigo = $(this).val();
-        //Llamar al REST
-        $(this).parents("tr").remove();
-
-
-    });
-    $("tbody tr").length;
-}
-function borrarVariosCarta() {
-    //recoger los checksboxes marcados
-    $("#tablaColores tbody input:checked").each(function () {
-        var codigo = $(this).val();
-        //Llamar al REST
-        $(this).parents("tr").remove();
-
-
-    });
-    $("tbody tr").length;
-}
 
 $("#tablaAmpliaciones").on("click","td:last-child button:first-child",function(){
     //alert("has pulsado el boton de actualizar");

@@ -4,6 +4,7 @@
 const urlColor = "http://localhost:8080/bibliotecamtg/api/colores";
 import * as service from "./genericservice"
 
+
 export class ColorService extends service.GenericService {
     constructor() {
         super();

@@ -16,6 +16,96 @@ export class AmpliacionService extends service.GenericService {
         return super.ajax(urlAmpliacion+"/"+ codigo,"get",null);
     }
 }
+
+export  function rederizarFormulario(codigo = -1){
+    let as = new AmpliacionService();
+    let ampliacion = new Ampliacion();
+    let txt ="";
+    return new Promise(function(resolve, reject) {
+        if(codigo > -1){
+            as.getById(codigo)
+                .then(function(ampli){
+                    txt = parseForm(JSON.parse(ampli));
+                    resolve(txt);
+                })
+                .catch(function () {
+                    reject("No se han podido acceder a los datos del codigo "+codigo);
+                });
+        }else{
+            txt = parseForm(ampliacion);
+            resolve(txt);
+        }
+    });
+
+
+    //rellaner datos en el form
+}
+function parseForm(ampliacion) {
+    let txt="";
+    txt="<form action='#' id='ampliacionForm' method='post'>";
+    txt = "<input type='text' name='nombre'"
+        +" id='nombre' value='"+ampliacion.nombre+"'>"
+    txt+="</form>";
+    return txt;
+}
+export function renderizar () {
+    let as = new AmpliacionService();
+    let txt = "";
+    return new Promise(function(resolve, reject) {
+        as.getAll().then(function(data) {
+            let ampliaciones = JSON.parse(data);
+            //   console.log(ampliaciones);
+            if (ampliaciones.length > 0) {
+                txt ="<table data-table='ampliaciones' id='tablaAmpliaciones' class='rwd-table'><thead><tr>"
+                    +"<th><input type='checkbox' name='borrartodos' id='borrartodos'/></th>"
+                    +"<th>Nombre</th>"
+                    +"<th>Código del set</th>"
+                    +"<th>Bloque</th>"
+                    +"<th></th></tr></thead><tbody>";
+                for (let i = 0; i < ampliaciones.length; i++) {
+                    let ampliacion = ampliaciones[i];
+                    console.log(ampliacion);
+                    txt += parseAmpliacion(ampliacion);
+                }
+                txt+="</tbody><tfoot><tr><td colspan='6'>Total expansiones:" + ampliaciones.length, 10+"</td></tr></tfoot></table>";
+            }else{
+                txt ="no se encuentran ampliaciones en la BBDD";
+            }
+            resolve(txt)
+        }, function(error) {//error
+            console.log(error);
+            txt ="error en la carga de alumnos";
+            reject(txt);
+        });
+    });
+}
+function parseAmpliacion(ampliacion){
+    let htmlEdit = "<button href=''>Editar</button>";
+    let htmlDelete = "<button href=''>Borrar</button>";
+    let titulo = ampliacion.nombre
+    if (ampliacion.imagen != null && ampliacion.imagen != "") {
+        titulo = "<img src='" + ampliacion.imagen + "'>"
+    }
+    let texto = "<tr>" +
+        "<td>" +
+        "<input type='checkbox'  value='" + ampliacion.codigo + "'>" +
+        "</td>" +
+        "<td class=''>" +
+        titulo +
+        "</td>" +
+        "<td>" +
+        ampliacion.siglas +
+        "</td>" +
+        "<td>" +
+        ampliacion.principal.nombre +
+        "</td>" +
+        "<td>" +
+        htmlEdit +
+        htmlDelete +
+        "</td>" +
+        "</tr>";
+    return texto;
+}
 export class Ampliacion {
     constructor() {
         this._codigo = -1;
