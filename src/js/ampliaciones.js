@@ -15,6 +15,12 @@ export class AmpliacionService extends service.GenericService {
     getById(codigo){
         return super.ajax(urlAmpliacion+"/"+ codigo,"get",null);
     }
+    delete(codigo){
+        return super.ajax(urlAmpliacion+"/"+ codigo,"delete",null);
+    }
+    ampliacionPricipalGetAll(){
+        return super.ajax(urlAmpliacion+"/principal","get",null);
+    }
 }
 
 export  function rederizarFormulario(codigo = -1){
@@ -46,7 +52,7 @@ function parseForm(ampliacion) {
     txt="<form action='#' id='ampliacionForm' method='post'>";
     txt = "<input type='text' name='nombre'"
         +" id='nombre' value='"+ampliacion.nombre+"'>"
-    txt+="</form>";
+    txt+="<div class='flexcontainer'><button>Enviar</button><button>Cancelar</button></div></form>";
     return txt;
 }
 export function renderizar () {
@@ -57,7 +63,7 @@ export function renderizar () {
             let ampliaciones = JSON.parse(data);
             //   console.log(ampliaciones);
             if (ampliaciones.length > 0) {
-                txt ="<table data-table='ampliaciones' id='tablaAmpliaciones' class='rwd-table'><thead><tr>"
+                txt ="<table data-table='ampliaciones' id='tablaAmpliaciones' class='table'><thead><tr>"
                     +"<th><input type='checkbox' name='borrartodos' id='borrartodos'/></th>"
                     +"<th>Nombre</th>"
                     +"<th>Código del set</th>"
@@ -75,14 +81,14 @@ export function renderizar () {
             resolve(txt)
         }, function(error) {//error
             console.log(error);
-            txt ="error en la carga de alumnos";
+            txt ="error en la carga de ampliaciones";
             reject(txt);
         });
     });
 }
 function parseAmpliacion(ampliacion){
-    let htmlEdit = "<button href=''>Editar</button>";
-    let htmlDelete = "<button href=''>Borrar</button>";
+    let htmlEdit = "<button href='#' type='button' class='btn btn-primary' data-toggle='modal' data-target='#formAmpliacionModal' data-whatever='Editar'>Editar</button>";
+    let htmlDelete = "<button href='#'>Borrar</button>";
     let titulo = ampliacion.nombre
     if (ampliacion.imagen != null && ampliacion.imagen != "") {
         titulo = "<img src='" + ampliacion.imagen + "'>"
@@ -107,6 +113,26 @@ function parseAmpliacion(ampliacion){
         "</tr>";
     return texto;
 }
+export function listaprincipal () {
+    let as = new AmpliacionService();
+    let txt = "";
+    return new Promise(function(resolve, reject) {
+        as.ampliacionPricipalGetAll().then(function(data) {
+            let ampliaciones = JSON.parse(data);
+            console.log(ampliaciones.length);
+            if (ampliaciones.length > 0) {
+                for (let i = 0; i < ampliaciones.length; i++) {
+                    let ampliacion = ampliaciones[i];
+                    console.log(ampliacion);
+                    txt += "<option  value='"+ ampliacion.codigo+"'>"+ampliacion.nombre+"</option>";
+                }
+            }
+        });
+    });
+}
+
+
+
 export class Ampliacion {
     constructor() {
         this._codigo = -1;

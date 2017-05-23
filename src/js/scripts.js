@@ -10,28 +10,33 @@ require("bootstrap");
 
 
 var $pagebody =$("#page-body");
+var $ampliacion =$("#ampliacion");
 var $formAmpliaciones =$("#formAmpliaciones");
 var $listadoAmpliaciones =$("#listadoAmpliaciones");
+var $color=$("#color");
 var $ListadoColores = $("#listadoColores");
+var $formColores =$("#formColores");
+var $carta=$("#carta");
 var $ListadoCartas = $("#listadoCartas");
+var $formCartas =$("#formCartas");
 
 if($listadoAmpliaciones.length) {
     let p1 =ampliacion.renderizar();
     p1.then(function (txt) {
-        $listadoAmpliaciones.find("div.flexcontainer:last-child").append(txt);
+        $listadoAmpliaciones.find("div.tablas:last-child").append(txt);
     }).catch(function (txt) {
 
     });
 }
 
-if($formAmpliaciones.length) {
+if($ampliacion.length) {
     let codigo = libreria.getURLParameter('codigo');
     // console.log(codigo);
-    let p2 =alumno.rederizarFormulario(codigo);
+    let p2 =ampliacion.rederizarFormulario(codigo);
 
     p2.then(function (html) {
         console.log("html"+html);
-        $alumno.find("div.flexcontainer:last-child").append(html);
+        $ampliacion.find("div.flexcontainer:last-child").append(html);
     }).catch(function (txt) {
         console.log("html"+txt);
     });
@@ -61,8 +66,27 @@ if($ListadoCartas.length) {
 $listadoAmpliaciones.find("div a:last-child").click(borrarVarios);
 $ListadoColores.find("div a:last-child").click(borrarVarios);
 $ListadoCartas.find("div a:last-child").click(borrarVarios);
+$pagebody.on("click","tbody td:last-child button:last-child",function(){
+    var codigo = $(this).parents("tr").find("input[type=checkbox]").val();
+    $(this).parents("tr").remove();
+    let nTable = $("table").attr("data-table");
+    let service;
+    switch (nTable){
+        case 'ampliaciones':
+            service = new ampliaciones.AmpliacionService();
+            break;
+        case 'colores':
+            service = new colores.ColoresService();
+            break;
+        case 'cartas':
+            service = new cartas.CartaService();
+            break;
+    }
+    service.delete(codigo);
 
-$pagebody.on("click","tbody td:last-child button:first-child",function(){//editar
+});
+
+/*$pagebody.on("click","tbody td:last-child button:first-child",function(){//editar
 
     var codigo = $(this).parents("tr").find("input[type=checkbox]").val();
     let nTable = $("table").attr("data-table");
@@ -72,9 +96,15 @@ $pagebody.on("click","tbody td:last-child button:first-child",function(){//edita
         case 'ampliaciones':
             txt += "ampliaciones/ampliacion.html?codigo="+codigo;
             break;
+        case 'cartas':
+            txt += "cartas/carta.html?codigo="+codigo;
+            break;
+        case 'colores':
+            txt += "colores/color.html?codigo="+codigo;
+            break;
     }
     window.location = txt;
-});
+});*/
 
 $("#page-body").on ('click',"#borrartodos",function (event) {
     if($(this).is(":checked")){
@@ -151,9 +181,25 @@ function cargarArrayCartas(cartas){
         $("#listadoCartas").text("No se han encontrado cartas")
     }
 }
+$('#formAmpliacionModal').on('show.bs.modal', function (event) {
+    var button = $(event.relatedTarget);
+    var recipient = button.data('whatever');
+    var modal = $(this);
+    modal.find('.modal-title').text(recipient + ' ampliacion');
 
 
+    let p1 =ampliacion.listaprincipal();
+    p1.then(function (txt) {
+        console.log(txt);
+        $("#recipient-pricipal").append(txt);
+    }).catch(function (txt) {
 
+    });               
+
+
+})
+
+/*
 $("#tablaAmpliaciones").on("click","td:last-child button:first-child",function(){
     //alert("has pulsado el boton de actualizar");
     var codigo = $(this).parents("tr").find("input[type=checkbox]").val();
@@ -171,4 +217,4 @@ $("#tablaCartas").on("click","td:last-child button:first-child",function(){
     var codigo = $(this).parents("tr").find("input[type=checkbox]").val();
     //Llamar al REST para el GetById
     var nombre = $(this).parents("tr").find("td:nth-child(2)").text();
-});
+});*/
