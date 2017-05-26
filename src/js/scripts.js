@@ -73,7 +73,7 @@ $pagebody.on("click","tbody td:last-child button:last-child",function(){
     let service;
     switch (nTable){
         case 'ampliaciones':
-            service = new ampliaciones.AmpliacionService();
+            service = new ampliacion.AmpliacionService();
             break;
         case 'colores':
             service = new colores.ColoresService();
@@ -114,11 +114,26 @@ $("#page-body").on ('click',"#borrartodos",function (event) {
     }
 });
 function borrarVarios() {
+    let nTable = $("table").attr("data-table");
+    let service;
     //recoger los checksboxes marcados
     $("table tbody input:checked").each(function () {
         var codigo = $(this).val();
-        //Llamar al REST
         $(this).parents("tr").remove();
+
+        switch (nTable){
+            case 'ampliaciones':
+                service = new ampliacion.AmpliacionService();
+                break;
+            case 'colores':
+                service = new colores.ColoresService();
+                break;
+            case 'cartas':
+                service = new cartas.CartaService();
+                break;
+        }
+        $(this).parents("tr").remove();
+        service.delete(codigo);
     });
     $("tbody tr").length;
 }
@@ -199,13 +214,55 @@ $('#formAmpliacionModal').on('show.bs.modal', function (event) {
 
 })
 
-/*
+$('#btnCrearAmpliacion').on('click', function() {
+    var json = $('#formAlumno').serializeObject();
+    json.principal = {"codigo":json.principal};/*para meter objetos dentro*/
+    var ampliacionJson = JSON.stringify(json);
+    console.log(ampliacionJson);
+    ampliacion
+        .crearAmpliacion(ampliacionJson)
+        .then(function(numAmpliacion){
+            console.log(numAmpliacion);
+            $('#tablaAmpliaciones').remove();
+            let p1 =ampliacion.renderizar();
+            p1.then(function (txt) {
+                $listadoAmpliaciones.find("div.tablas:last-child").append(txt);
+            }).catch(function (txt) {
+
+            });
+            $('#formAmpliacionModal').modal('hide');
+        })
+        .catch(function(error){
+            console.log(error);
+        });
+
+
+});
+
+$.fn.serializeObject = function() {
+    var o = {};
+    var a = this.serializeArray();
+    $.each(a, function() {
+        if (o[this.name]) {
+            if (!o[this.name].push) {
+                o[this.name] = [o[this.name]];
+            }
+            o[this.name].push(this.value || '');
+        } else {
+            o[this.name] = this.value || '';
+        }
+    });
+    return o;
+};
+
+
 $("#tablaAmpliaciones").on("click","td:last-child button:first-child",function(){
-    //alert("has pulsado el boton de actualizar");
+    alert("has pulsado el boton de actualizar");
     var codigo = $(this).parents("tr").find("input[type=checkbox]").val();
     //Llamar al REST para el GetById
     var nombre = $(this).parents("tr").find("td:nth-child(2)").text();
 });
+/*
 $("#tablaColores").on("click","td:last-child button:first-child",function(){
     //alert("has pulsado el boton de actualizar");
     var codigo = $(this).parents("tr").find("input[type=checkbox]").val();

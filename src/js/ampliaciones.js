@@ -10,23 +10,50 @@ export class AmpliacionService extends service.GenericService {
         super();
     }
     getAll(){
-        return super.ajax(urlAmpliacion,"get",null);
+        return super.ajax(urlAmpliacion,"get",null,"text");
     }
     getById(codigo){
-        return super.ajax(urlAmpliacion+"/"+ codigo,"get",null);
+        return super.ajax(urlAmpliacion+"/"+ codigo,"get",null,"text");
     }
     delete(codigo){
-        return super.ajax(urlAmpliacion+"/"+ codigo,"delete",null);
+        return super.ajax(urlAmpliacion+"/"+ codigo,"delete",null,"text");
     }
     ampliacionPricipalGetAll(){
-        return super.ajax(urlAmpliacion+"/principal","get",null);
+        return super.ajax(urlAmpliacion+"/principal","get",null,"text");
+    }
+    create(ampliacion){
+        return super.ajax(urlAmpliacion,"POST",ampliacion,"json");
     }
 }
+
+
+
+
+
+
+export function crearAmpliacion(ampliacionJson) {
+    let as = new AmpliacionService();
+
+    return new Promise(function(resolve, reject) {
+        as.create(ampliacionJson)
+            .then(function (numAmpliacion) {
+                console.log("Guardado !!!!!");
+                resolve(numAmpliacion);
+            }).catch(function () {
+                console.log("No se a guardado !!!!!");
+                reject(new Error(msj));
+            });
+    });
+}
+
+
+
+
 
 export  function rederizarFormulario(codigo = -1){
     let as = new AmpliacionService();
     let ampliacion = new Ampliacion();
-    let txt ="";
+    let txt = "";
     return new Promise(function(resolve, reject) {
         if(codigo > -1){
             as.getById(codigo)
@@ -91,7 +118,7 @@ function parseAmpliacion(ampliacion){
     let htmlDelete = "<button href='#'>Borrar</button>";
     let titulo = ampliacion.nombre
     if (ampliacion.imagen != null && ampliacion.imagen != "") {
-        titulo = "<img src='" + ampliacion.imagen + "'>"
+        titulo = "<img src='http://localhost:8080/bibliotecamtg/resources/images/expansion/logo/" + ampliacion.imagen + "'>"
     }
     let texto = "<tr>" +
         "<td>" +
@@ -113,6 +140,9 @@ function parseAmpliacion(ampliacion){
         "</tr>";
     return texto;
 }
+
+
+
 export function listaprincipal () {
     let as = new AmpliacionService();
     let txt = "";
@@ -127,6 +157,11 @@ export function listaprincipal () {
                     txt += "<option  value='"+ ampliacion.codigo+"'>"+ampliacion.nombre+"</option>";
                 }
             }
+            resolve(txt)
+        }, function(error) {//error
+            console.log(error);
+            txt ="error en la carga de ampliaciones";
+            reject(txt);
         });
     });
 }
