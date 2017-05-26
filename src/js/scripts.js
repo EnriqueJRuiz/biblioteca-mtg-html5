@@ -199,17 +199,19 @@ function cargarArrayCartas(cartas){
 $('#formAmpliacionModal').on('show.bs.modal', function (event) {
     var button = $(event.relatedTarget);
     var recipient = button.data('whatever');
+    var opId= button.data('opId');
     var modal = $(this);
     modal.find('.modal-title').text(recipient + ' ampliacion');
-
-
     let p1 =ampliacion.listaprincipal();
     p1.then(function (txt) {
         console.log(txt);
         $("#recipient-pricipal").append(txt);
     }).catch(function (txt) {
 
-    });               
+    });
+    if(opId=='-1'){
+        $('#tablaAmpliaciones').reset()
+    }
 
 
 })

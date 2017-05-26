@@ -114,7 +114,7 @@ export function renderizar () {
     });
 }
 function parseAmpliacion(ampliacion){
-    let htmlEdit = "<button href='#' type='button' class='btn btn-primary' data-toggle='modal' data-target='#formAmpliacionModal' data-whatever='Editar'>Editar</button>";
+    let htmlEdit = "<button href='#' type='button' class='btn btn-primary' data-toggle='modal' data-target='#formAmpliacionModal' data-whatever='Editar' data-opId='" + ampliacion.codigo + "'>Editar</button>";
     let htmlDelete = "<button href='#'>Borrar</button>";
     let titulo = ampliacion.nombre
     if (ampliacion.imagen != null && ampliacion.imagen != "") {
