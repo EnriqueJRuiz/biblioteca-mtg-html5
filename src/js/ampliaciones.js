@@ -10,19 +10,22 @@ export class AmpliacionService extends service.GenericService {
         super();
     }
     getAll(){
-        return super.ajax(urlAmpliacion,"get",null,"text");
+        return super.ajax(urlAmpliacion,"GET",null,"text");
     }
     getById(codigo){
-        return super.ajax(urlAmpliacion+"/"+ codigo,"get",null,"text");
+        return super.ajax(urlAmpliacion+"/"+ codigo,"GET",null,"text");
     }
     delete(codigo){
         return super.ajax(urlAmpliacion+"/"+ codigo,"delete",null,"text");
     }
     ampliacionPricipalGetAll(){
-        return super.ajax(urlAmpliacion+"/principal","get",null,"text");
+        return super.ajax(urlAmpliacion+"/principal","GET",null,"text");
     }
     create(ampliacion){
         return super.ajax(urlAmpliacion,"POST",ampliacion,"json");
+    }
+    update(ampliacion){
+        return super.ajax(urlAmpliacion,"PUT",ampliacion,"json");
     }
 }
 
@@ -46,11 +49,22 @@ export function crearAmpliacion(ampliacionJson) {
     });
 }
 
+export function updateAmpliacion(ampliacionJson) {
+    let as = new AmpliacionService();
 
+    return new Promise(function(resolve, reject) {
+        as.update(ampliacionJson)
+            .then(function (numAmpliacion) {
+                console.log("Modificado !!!!!");
+                resolve(numAmpliacion);
+            }).catch(function () {
+            console.log("No se a Modificado !!!!!");
+            reject(new Error(msj));
+        });
+    });
+}
 
-
-
-export  function rederizarFormulario(codigo = -1){
+export function rederizarFormulario(codigo){
     let as = new AmpliacionService();
     let ampliacion = new Ampliacion();
     let txt = "";
@@ -60,14 +74,14 @@ export  function rederizarFormulario(codigo = -1){
                 .then(function(ampli){
                     txt = parseForm(JSON.parse(ampli));
                     
-                    resolve(txt);
+                    resolve("correcto");
                 })
                 .catch(function () {
                     reject("No se han podido acceder a los datos del codigo "+codigo);
                 });
         }else{
-            txt = parseForm(ampliacion);
-            resolve(txt);
+            $('#formAmpliacionModal').reset;
+            resolve("Nuevo");
         }
     });
 
@@ -75,12 +89,9 @@ export  function rederizarFormulario(codigo = -1){
     //rellaner datos en el form
 }
 function parseForm(ampliacion) {
-    let txt="";
-    txt="<form action='#' id='ampliacionForm' method='post'>";
-    txt = "<input type='text' name='nombre'"
-        +" id='nombre' value='"+ampliacion.nombre+"'>"
-    txt+="<div class='flexcontainer'><button>Enviar</button><button>Cancelar</button></div></form>";
-    return txt;
+    $("#formAmpliacionModal").find("input[name=nombre]").val(ampliacion.nombre);
+    $("#formAmpliacionModal").find("input[name=siglas]").val(ampliacion.siglas);
+    $("#formAmpliacionModal").find("select[name=principal]").val(ampliacion.principal.codigo);
 }
 export function renderizar () {
     let as = new AmpliacionService();
@@ -88,7 +99,7 @@ export function renderizar () {
     return new Promise(function(resolve, reject) {
         as.getAll().then(function(data) {
             let ampliaciones = JSON.parse(data);
-            //   console.log(ampliaciones);
+               console.log(ampliaciones);
             if (ampliaciones.length > 0) {
                 txt ="<table data-table='ampliaciones' id='tablaAmpliaciones' class='table'><thead><tr>"
                     +"<th><input type='checkbox' name='borrartodos' id='borrartodos'/></th>"
@@ -114,8 +125,8 @@ export function renderizar () {
     });
 }
 function parseAmpliacion(ampliacion){
-    let htmlEdit = "<button href='#' type='button' class='btn btn-primary' data-toggle='modal' data-target='#formAmpliacionModal' data-whatever='Editar' data-opId='" + ampliacion.codigo + "'>Editar</button>";
-    let htmlDelete = "<button href='#'>Borrar</button>";
+    let htmlEdit = "<button  type='button' class='btn btn-primary' name='editar' data-whatever='Editar'>Editar</button>";
+    let htmlDelete = "<button >Borrar</button>";
     let titulo = ampliacion.nombre
     if (ampliacion.imagen != null && ampliacion.imagen != "") {
         titulo = "<img src='http://localhost:8080/bibliotecamtg/resources/images/expansion/logo/" + ampliacion.imagen + "'>"

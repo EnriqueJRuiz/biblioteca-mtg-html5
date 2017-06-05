@@ -63,9 +63,12 @@ if($ListadoCartas.length) {
 }
 
 //$("#contactForm").on("submit",validarFormularioContacto);
+$listadoAmpliaciones.find("div a:first-child").click(crear);
+
 $listadoAmpliaciones.find("div a:last-child").click(borrarVarios);
 $ListadoColores.find("div a:last-child").click(borrarVarios);
 $ListadoCartas.find("div a:last-child").click(borrarVarios);
+
 $pagebody.on("click","tbody td:last-child button:last-child",function(){
     var codigo = $(this).parents("tr").find("input[type=checkbox]").val();
     $(this).parents("tr").remove();
@@ -105,6 +108,22 @@ $pagebody.on("click","tbody td:last-child button:last-child",function(){
     }
     window.location = txt;
 });*/
+
+function crear(){
+    let nTable = $("table").attr("data-table");
+    switch (nTable){
+        case 'ampliaciones':
+            $("#formAmpliacionModal").find("input[name=codigo]").val("-1");
+            $("#formAmpliacionModal").modal();
+            break;
+        case 'colores':
+            service = new colores.ColoresService();
+            break;
+        case 'cartas':
+            service = new cartas.CartaService();
+            break;
+    }
+}
 
 $("#page-body").on ('click',"#borrartodos",function (event) {
     if($(this).is(":checked")){
@@ -197,48 +216,64 @@ function cargarArrayCartas(cartas){
     }
 }
 $('#formAmpliacionModal').on('show.bs.modal', function (event) {
-    var button = $(event.relatedTarget);
-    var recipient = button.data('whatever');
-    var opId= button.data('opId');
-    var modal = $(this);
+    let button = $(event.relatedTarget);
+    let recipient = button.data('whatever');
+    let modal = $(this);
+    let codigo
     modal.find('.modal-title').text(recipient + ' ampliacion');
     let p1 =ampliacion.listaprincipal();
     p1.then(function (txt) {
         console.log(txt);
         $("#recipient-pricipal").append(txt);
     }).catch(function (txt) {
-
+        $("#recipient-pricipal").append("Error en la carga");
     });
-    if(opId=='-1'){
-        $('#tablaAmpliaciones').reset()
-    }
-
-
+    codigo = $("input[name=codigo]").val();
+    ampliacion.rederizarFormulario(codigo);
 })
 
-$('#btnCrearAmpliacion').on('click', function() {
+$('#btnFormAmpliacion').on('click', function() {
     var json = $('#formAlumno').serializeObject();
     json.principal = {"codigo":json.principal};/*para meter objetos dentro*/
     var ampliacionJson = JSON.stringify(json);
     console.log(ampliacionJson);
-    ampliacion
-        .crearAmpliacion(ampliacionJson)
-        .then(function(numAmpliacion){
-            console.log(numAmpliacion);
-            $('#tablaAmpliaciones').remove();
-            let p1 =ampliacion.renderizar();
-            p1.then(function (txt) {
-                $listadoAmpliaciones.find("div.tablas:last-child").append(txt);
-            }).catch(function (txt) {
+    let codigo= $("#formAmpliacionModal").find("input[name=codigo]").val();
+    if(codigo>-1){
+        ampliacion
+            .updateAmpliacion(ampliacionJson)
+            .then(function (numAmpliacion) {
+                console.log(numAmpliacion);
+                $('#tablaAmpliaciones').remove();
+                let p1 = ampliacion.renderizar();
+                p1.then(function (txt) {
+                    $listadoAmpliaciones.find("div.tablas:last-child").append(txt);
+                }).catch(function (txt) {
 
+                });
+                $('#formAmpliacionModal').modal('hide');
+            })
+            .catch(function (error) {
+                console.log(error);
             });
-            $('#formAmpliacionModal').modal('hide');
-        })
-        .catch(function(error){
-            console.log(error);
-        });
+    }else {
+        ampliacion
+            .crearAmpliacion(ampliacionJson)
+            .then(function (numAmpliacion) {
+                console.log(numAmpliacion);
+                $('#tablaAmpliaciones').remove();
+                let p1 = ampliacion.renderizar();
+                p1.then(function (txt) {
+                    $listadoAmpliaciones.find("div.tablas:last-child").append(txt);
+                }).catch(function (txt) {
 
+                });
+                $('#formAmpliacionModal').modal('hide');
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
 
+    }
 });
 
 $.fn.serializeObject = function() {
@@ -258,12 +293,15 @@ $.fn.serializeObject = function() {
 };
 
 
-$("#tablaAmpliaciones").on("click","td:last-child button:first-child",function(){
-    alert("has pulsado el boton de actualizar");
+//$("#tablaAmpliaciones").on("click","td:last-child button:first-child",function(){
+$pagebody.on("click","tbody td:last-child button:first-child",function(){
     var codigo = $(this).parents("tr").find("input[type=checkbox]").val();
-    //Llamar al REST para el GetById
-    var nombre = $(this).parents("tr").find("td:nth-child(2)").text();
+    console.log(codigo);
+    $("#formAmpliacionModal").find("input[name=codigo]").val(codigo);
+    $("#formAmpliacionModal").modal();
+    //var nombre = $(this).parents("tr").find("td:nth-child(2)").text();
 });
+
 /*
 $("#tablaColores").on("click","td:last-child button:first-child",function(){
     //alert("has pulsado el boton de actualizar");
@@ -277,3 +315,45 @@ $("#tablaCartas").on("click","td:last-child button:first-child",function(){
     //Llamar al REST para el GetById
     var nombre = $(this).parents("tr").find("td:nth-child(2)").text();
 });*/
+
+$("#contenedor").append($("<table/>",{
+    'data-table':"alumnos",
+    id: "tablaAlumnos",
+    class: "rwd-table"
+}).append(
+    $("<thead/>")
+    .append($("<tr>")
+        .append($("<th/>",{
+            html: "<input type='checkbox' name='borrartodos' id='borrartodos'/>"
+        })).append($("<th/>",{
+            text: "Nombre"
+        })).append($("<th/>",{
+            text: "Apellidos"
+        })).append($("<th/>",{
+            text: "DNI"
+        })).append($("<th/>",{
+            text: "Email"
+        })).append($("<th/>"))
+    ),
+    $("<tbody/>"))
+    .append(fbodyform()));
+function fbodyform(){
+    let bodyform = [];
+    for (var a = 0; a < 6; a++) {
+        bodyform[a] = $("<tr>")
+            .append($("<td/>", {
+                html: "<input type='checkbox' name='borrartodos' id='borrartodos'/>"
+            })).append($("<td/>", {
+                text: a
+            })).append($("<td/>", {
+                text: a
+            })).append($("<td/>", {
+                text: a
+            })).append($("<td/>", {
+                text: a
+            })).append($("<td/>"))
+
+    }
+    return bodyform;
+}
+

@@ -24,11 +24,9 @@
                     <section id="listadoAmpliaciones">
                         <header class=" text-center"><h2>Listado de Ampliaciones</h2></header>
                         <div class="flexcontainer">
-
                             <div class="tablas">
-                                <a title="Crear" href="#" class="btn btn-success" data-toggle='modal' data-target='#formAmpliacionModal' data-whatever='Nueva'  data-opId='-1'><span class="glyphicon glyphicon-plus-sign"></span> nuevo</a>
+                                <a title="Crear"  href="#" class="btn btn-success" data-whatever='Nueva'><span class="glyphicon glyphicon-plus-sign"></span> nuevo</a>
                                 <a title="Borrar" href="#">Borrar Varios</a>
-
                             </div>
                         </div>
                     </section>
@@ -48,6 +46,7 @@
                     </div>
                     <div class="modal-body">
                         <form id="formAlumno">
+                            <input type="hidden" id="recipient-codigo" name="codigo">
                             <div class="form-group">
                                 <label for="recipient-name" class="control-label">Nombre:</label>
                                 <input type="text" class="form-control" id="recipient-name" name="nombre">
@@ -67,7 +66,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-danger" data-dismiss="modal"><span class="glyphicon glyphicon-arrow-left"></span> Volver</button>
-                        <button type="button" class="btn btn-success" id="btnCrearAmpliacion"><span class="glyphicon glyphicon-ok"></span> Guardar</button>
+                        <button type="button" class="btn btn-success" id="btnFormAmpliacion"><span class="glyphicon glyphicon-ok"></span> Guardar</button>
                     </div>
                 </div>
             </div>
